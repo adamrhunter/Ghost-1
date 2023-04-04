@@ -227,7 +227,8 @@ class SignupPage extends React.Component {
             name: '',
             email: '',
             plan: 'free',
-            showNewsletterSelection: false
+            showNewsletterSelection: false,
+            termsCheckboxChecked: false
         };
     }
 
@@ -263,10 +264,20 @@ class SignupPage extends React.Component {
         clearTimeout(this.timeoutId);
     }
 
+    getFormErrors(state) {
+        const checkboxRequired = this.context.site.portal_signup_checkbox_required;
+        const checkboxError = checkboxRequired && !state.termsCheckboxChecked;
+
+        return {
+            ...ValidateInputForm({fields: this.getInputFields({state})}),
+            checkbox: checkboxError
+        };
+    }
+
     doSignup() {
         this.setState((state) => {
             return {
-                errors: ValidateInputForm({fields: this.getInputFields({state})})
+                errors: this.getFormErrors(state)
             };
         }, () => {
             const {site, onAction} = this.context;
@@ -283,7 +294,7 @@ class SignupPage extends React.Component {
                     this.setState({
                         errors: {}
                     });
-                    onAction('signup', { name, email, plan });
+                    onAction('signup', {name, email, plan});
                 }
             }
         });
@@ -380,6 +391,42 @@ class SignupPage extends React.Component {
             });
         }
         return fields;
+    }
+
+    renderSignupTerms() {
+        const {site} = this.context;
+        if (site.portal_signup_terms_html === null || site.portal_signup_terms_html === '') {
+            return null;
+        }
+
+        const handleCheckboxChange = (e) => {
+            this.setState({
+                termsCheckboxChecked: e.target.checked
+            });
+        };
+
+        const checkbox = site.portal_signup_checkbox_required ? (
+            <input
+                type="checkbox"
+                key={Math.random()} // We want to force a re-render, because the checked property changing doesn't
+                checked={!!this.state.termsCheckboxChecked}
+                required={true}
+                onChange={handleCheckboxChange}
+            />
+        ) : null;
+
+        const errorClassName = this.state.errors?.checkbox ? 'gh-portal-error' : '';
+
+        const className = `gh-portal-signup-terms ${errorClassName}`;
+
+        return (
+            <div className={className}>
+                {checkbox}
+                <div className="gh-portal-signup-terms-content"
+                    dangerouslySetInnerHTML={{__html: site.portal_signup_terms_html}}
+                ></div>
+            </div>
+        );
     }
 
     renderSubmitButton() {
@@ -521,6 +568,7 @@ class SignupPage extends React.Component {
                     </div>
                     <div>
                         {this.renderProducts()}
+                        {this.renderSignupTerms()}
 
                         {(hasOnlyFree ?
                             <div className={'gh-portal-btn-container' + (sticky ? ' sticky m24' : '')}>
