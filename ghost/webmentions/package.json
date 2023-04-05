@@ -25,8 +25,8 @@
     "sinon": "15.0.2"
   },
   "dependencies": {
-    "@tryghost/errors": "1.2.23",
-    "@tryghost/logging": "2.4.1",
+    "@tryghost/errors": "1.2.24",
+    "@tryghost/logging": "2.4.4",
     "cheerio": "0.22.0"
   }
 }
