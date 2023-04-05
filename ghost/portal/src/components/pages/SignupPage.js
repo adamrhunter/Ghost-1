@@ -408,7 +408,6 @@ class SignupPage extends React.Component {
         const checkbox = site.portal_signup_checkbox_required ? (
             <input
                 type="checkbox"
-                key={Math.random()} // We want to force a re-render, because the checked property changing doesn't
                 checked={!!this.state.termsCheckboxChecked}
                 required={true}
                 onChange={handleCheckboxChange}
